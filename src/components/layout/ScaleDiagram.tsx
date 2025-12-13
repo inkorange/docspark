@@ -4,10 +4,7 @@ import styles from './ScaleDiagram.module.scss'
 import React from 'react'
 
 interface ScaleDiagramProps {
-	/**
-	 * needs a descripton?
-	 * @hideInDocs
-	 */
+	/** needs a descripton? */
 	className?: string
 	/** Collection of keys used for each scale option */
 	options: string[]
@@ -47,7 +44,7 @@ export const ScaleDiagram = ({
 							{i === selectedOption ? (
 								<svg viewBox={`0 0 ${circleWidth} ${circleWidth}`} width={circleWidth} height={circleWidth}>
 									{!small && <circle r="calc(100% / 2)" cx="50%" cy="50%" />}
-									<circle cx="50%" cy="50%" {...scaleIndicatorOptions} />
+									<circle r="calc(100% / 4 + 2.5px / 2)" cx="50%" cy="50%" {...scaleIndicatorOptions} />
 								</svg>
 							) : (
 								!small && (
