@@ -11,6 +11,7 @@
 # production
 /build
 /website/build
+/website/docs
 /dist
 
 # TypeScript build info

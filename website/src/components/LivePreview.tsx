@@ -78,10 +78,10 @@ const LivePreview: React.FC<LivePreviewProps> = ({
       <div className="live-preview-placeholder">
         <span className="component-tag">&lt;{componentName} /&gt;</span>
         <span className="preview-note">
-          Component not available for live preview
+          Live preview not available
         </span>
         <span className="preview-hint">
-          Run <code>npm run copy-components</code> to enable live preview
+          View the code examples and props documentation below
         </span>
       </div>
     );

@@ -4,10 +4,7 @@ import styles from './ScaleDiagram.module.scss'
 import React from 'react'
 
 interface ScaleDiagramProps {
-	/**
-	 * needs a descripton?
-	 * @hideInDocs
-	 */
+	/** needs a descripton? */
 	className?: string
 	/** Collection of keys used for each scale option */
 	options: string[]
