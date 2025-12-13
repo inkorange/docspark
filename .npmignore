@@ -1,7 +1,9 @@
 # Development files
 src/
-website/src/
 scripts/
+
+# Exclude copied components (build artifacts)
+website/src/preview-components/
 *.test.tsx
 *.test.ts
 *.test.js

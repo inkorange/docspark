@@ -44,7 +44,7 @@ export const ScaleDiagram = ({
 							{i === selectedOption ? (
 								<svg viewBox={`0 0 ${circleWidth} ${circleWidth}`} width={circleWidth} height={circleWidth}>
 									{!small && <circle r="calc(100% / 2)" cx="50%" cy="50%" />}
-									<circle r="calc(100% / 4 + 2.5px / 2)" cx="50%" cy="50%" {...scaleIndicatorOptions} />
+									<circle cx="50%" cy="50%" {...scaleIndicatorOptions} />
 								</svg>
 							) : (
 								!small && (

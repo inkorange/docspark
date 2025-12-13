@@ -3,12 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "ajv": "^8.12.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^6.21.0",
-    "react-syntax-highlighter": "^16.1.0"
+    "react-scripts": "5.0.1",
+    "react-syntax-highlighter": "^16.1.0",
+    "typescript": "^5.3.3"
   },
-  "devDependencies": {
-    "@types/react-syntax-highlighter": "^15.5.13"
+  "resolutions": {
+    "ajv": "^8.12.0"
   }
 }

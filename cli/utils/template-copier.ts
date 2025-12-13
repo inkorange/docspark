@@ -23,8 +23,47 @@ export async function copyTemplateToOutput(outputDir: string, verbose?: boolean)
     console.log(`  Template source: ${templateDir}`);
   }
 
+  // Preserve metadata and themes directories before copying template
+  const metadataDir = path.join(outputDir, 'metadata');
+  const themesDir = path.join(outputDir, 'themes');
+  const tempDir = path.join(outputDir, '..', '.docspark-temp');
+
+  // Save metadata and themes to temp location if they exist
+  if (fs.existsSync(metadataDir) || fs.existsSync(themesDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+
+    if (fs.existsSync(metadataDir)) {
+      const tempMetadata = path.join(tempDir, 'metadata');
+      fs.cpSync(metadataDir, tempMetadata, { recursive: true });
+    }
+
+    if (fs.existsSync(themesDir)) {
+      const tempThemes = path.join(tempDir, 'themes');
+      fs.cpSync(themesDir, tempThemes, { recursive: true });
+    }
+  }
+
   // Copy all template files to output directory
   copyDirectory(templateDir, outputDir, verbose);
+
+  // Restore metadata and themes
+  if (fs.existsSync(tempDir)) {
+    const tempMetadata = path.join(tempDir, 'metadata');
+    const tempThemes = path.join(tempDir, 'themes');
+
+    if (fs.existsSync(tempMetadata)) {
+      const destMetadata = path.join(outputDir, 'metadata');
+      fs.cpSync(tempMetadata, destMetadata, { recursive: true });
+    }
+
+    if (fs.existsSync(tempThemes)) {
+      const destThemes = path.join(outputDir, 'themes');
+      fs.cpSync(tempThemes, destThemes, { recursive: true });
+    }
+
+    // Clean up temp directory
+    fs.rmSync(tempDir, { recursive: true });
+  }
 
   if (verbose) {
     console.log(`  ✓ Template copied to ${outputDir}`);
@@ -42,7 +81,7 @@ function findTemplateDirectory(): string {
     return localTemplate;
   }
 
-  // Try package template directory (production - npm installed)
+  // Try package template directory (production - npm installed package)
   // When installed via npm, __dirname will be in node_modules/@inkorange/docspark/dist/cli/utils
   // So we need to go up 3 levels to get to the package root, then into template/
   const packageTemplate = path.join(__dirname, '../../../template');
@@ -50,18 +89,18 @@ function findTemplateDirectory(): string {
     return packageTemplate;
   }
 
-  // Fallback for different installation scenarios
-  const altTemplate = path.join(__dirname, '../../template');
-  if (fs.existsSync(altTemplate)) {
-    return altTemplate;
+  // Try package website/build directory (legacy fallback)
+  const packageWebsiteBuild = path.join(__dirname, '../../../website/build');
+  if (fs.existsSync(packageWebsiteBuild)) {
+    return packageWebsiteBuild;
   }
 
   // Last resort: throw error with helpful message
   throw new Error(
     'Template directory not found. Searched in:\n' +
-    `  - ${localTemplate}\n` +
-    `  - ${packageTemplate}\n` +
-    `  - ${altTemplate}`
+    `  - ${localTemplate} (for local development)\n` +
+    `  - ${packageTemplate} (for installed npm package)\n` +
+    `  - ${packageWebsiteBuild} (legacy fallback)`
   );
 }
 
