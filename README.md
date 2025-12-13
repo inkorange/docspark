@@ -1,12 +1,20 @@
 <img src="public/docspark-logo.png" alt="DocSpark Logo" width="150" />
 
-# DocSpark
+# DocSpark (Alpha Build)
 
 **Simple, automatic component documentation for React built off your Typescript Definitions**
 
 DocSpark automatically generates beautiful, interactive, documentation for your React components. Just add a simple config file and a few JSDoc tags, then generate a complete documentation site—no story files, no complex setup required.
 
 ![DocSpark Screenshot](public/docspark-screen1.jpg)
+
+**NOTE: This is an alpha release as we work through support across a wide-range of projects. Live Preview of components is a work in progress**
+
+## Current Limitations
+Live Previews: Only work when the React website successfully builds from source. When falling back to the template, live previews show "Live preview not available" because:
+- The template contains a pre-built static bundle
+- User components copied to docs/preview-components/ can't be loaded by the static bundle
+- All other documentation features (props tables, variants, code examples, CSS variables) work perfectly
 
 🚀 **Simpler than Storybook** • 📦 **Works with existing components** • ⚡ **Minimal configuration**
 
