@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.6
+
+### Patch Changes
+
+- fe524ff: README.md update indicating alpha build
+- 2670eb4: Updated the support for live component renderings for different client applications
+
 ## 0.1.5
 
 ### Patch Changes
