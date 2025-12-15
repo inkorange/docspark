@@ -32,6 +32,9 @@
 # npm package tarballs
 *.tgz
 
+# developer tools
+/.claude
+
 # misc
 .DS_Store
 .env.local
