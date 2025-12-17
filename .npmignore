@@ -1,6 +1,7 @@
 # Development files
 src/
 scripts/
+example/
 
 # Exclude copied components (build artifacts)
 website/src/preview-components/

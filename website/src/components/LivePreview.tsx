@@ -2,6 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { COMPONENT_MAP } from '../preview-components';
 import './LivePreview.scss';
 
+// Extend window interface for component loading
+declare global {
+  interface Window {
+    DOCSPARK_COMPONENTS?: Record<string, any>;
+  }
+}
+
+// Get component map from window (runtime loaded) or fallback to build-time map
+function getComponentMap(): Record<string, any> {
+  // Prefer runtime-loaded components from window global
+  if (typeof window !== 'undefined' && window.DOCSPARK_COMPONENTS) {
+    return window.DOCSPARK_COMPONENTS;
+  }
+  // Fallback to build-time component map
+  return COMPONENT_MAP;
+}
+
 interface LivePreviewProps {
   componentName: string;
   props: Record<string, any>;
@@ -43,14 +60,16 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   useEffect(() => {
     setError(null);
 
+    const componentMap = getComponentMap();
+
     // Check if component exists in the component map
-    if (!COMPONENT_MAP[componentName]) {
+    if (!componentMap[componentName]) {
       setComponent(null);
       return;
     }
 
     try {
-      const comp = COMPONENT_MAP[componentName];
+      const comp = componentMap[componentName];
       setComponent(() => comp);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load component');
@@ -81,7 +100,8 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           Live preview not available
         </span>
         <span className="preview-hint">
-          View the code examples and props documentation below
+          Live previews require the React website to build successfully from source.
+          All documentation features (props, variants, code examples) remain fully functional.
         </span>
       </div>
     );

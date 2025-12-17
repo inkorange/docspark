@@ -11,6 +11,7 @@ export interface BuildOptions {
   config: string;
   baseUrl?: string;
   verbose?: boolean;
+  enableTypeCheck?: boolean;
 }
 
 /**
@@ -279,21 +280,89 @@ export async function buildCommand(options: BuildOptions) {
     // Try to build website with components, fall back to template if website source not available
     console.log('\n🌐 Building documentation website...');
     try {
-      await buildWebsiteWithComponents(config, outputDir, options.verbose || false);
+      // Skip type checking by default (unless --enable-type-check is passed)
+      const skipTypeCheck = !options.enableTypeCheck;
+      await buildWebsiteWithComponents(config, outputDir, options.verbose || false, skipTypeCheck);
       if (options.verbose) {
         console.log('  ✅ Website built with user components');
       }
     } catch (error) {
-      if (options.verbose) {
-        console.warn('  ⚠️  Could not build website from source:', error instanceof Error ? error.message : error);
-        console.log('  📋 Falling back to pre-built template...');
+      console.warn('\n⚠️  Live preview build failed - documentation will be generated without live component previews');
+      console.warn('   All documentation features (props, variants, code examples) remain fully functional.\n');
+
+      // Show error details
+      if (error instanceof Error) {
+        const errorMessage = error.message;
+
+        // Check for common error patterns
+        if (errorMessage.includes('Could not resolve') || errorMessage.includes('Cannot find module')) {
+          console.warn('❌ Module Resolution Error:');
+          console.warn('   Your components are importing files that are not included in the build.');
+          console.warn('');
+
+          // Try to extract module names from error
+          const moduleMatch = errorMessage.match(/(?:Could not resolve|Cannot find module)\s+['"]([^'"]+)['"]/);
+          if (moduleMatch) {
+            console.warn(`   Missing import: "${moduleMatch[1]}"`);
+            console.warn('');
+          }
+
+          console.warn('💡 To fix this:');
+          console.warn('   1. Check your docspark.config.json "source.include" patterns');
+          console.warn('   2. Ensure all imported files (components, utilities, types, assets) are included');
+          console.warn('   3. Add additional glob patterns to include missing dependencies');
+          console.warn('');
+          console.warn('   Example config:');
+          console.warn('   {');
+          console.warn('     "source": {');
+          console.warn('       "include": [');
+          console.warn('         "src/components/**/*.{tsx,jsx}",');
+          console.warn('         "src/utils/**/*.{ts,tsx}",  // Include shared utilities');
+          console.warn('         "src/types/**/*.ts"          // Include type definitions');
+          console.warn('       ]');
+          console.warn('     }');
+          console.warn('   }');
+        } else if (errorMessage.includes('Module build failed') || errorMessage.includes('SyntaxError')) {
+          console.warn('❌ Build Error:');
+          console.warn('   There was an error compiling your components.');
+          console.warn('');
+          console.warn(`   ${errorMessage.split('\n')[0]}`);
+          console.warn('');
+          console.warn('💡 Check your component files for syntax errors or build issues.');
+        } else {
+          console.warn('❌ Build Error:');
+          console.warn(`   ${errorMessage}`);
+        }
+
+        if (options.verbose) {
+          console.warn('');
+          console.warn('Full error details:');
+          console.warn(error.stack || error.message);
+        }
       }
+
+      console.warn('\n📋 Falling back to pre-built template (no live previews)...\n');
 
       // Fall back to template
       await copyTemplateToOutput(outputDir, options.verbose);
 
-      // Copy components for static preview (won't have live previews)
+      // Copy components for preview
       await copyComponentsForPreview(config, outputDir, options.verbose || false);
+    }
+
+    // Safety check: Ensure index.html exists in output directory
+    const indexPath = path.join(outputDir, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      if (options.verbose) {
+        console.warn('  ⚠️  index.html not found after build, copying template...');
+      }
+      await copyTemplateToOutput(outputDir, options.verbose);
+
+      // Also try to copy components for preview if they weren't already
+      const previewDir = path.join(outputDir, 'preview-components');
+      if (!fs.existsSync(previewDir)) {
+        await copyComponentsForPreview(config, outputDir, options.verbose || false);
+      }
     }
 
     console.log('\n✅ Build complete!');

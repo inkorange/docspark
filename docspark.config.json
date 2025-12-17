@@ -5,7 +5,7 @@
 
   "source": {
     "include": [
-      "src/components/**/*.{tsx,jsx}"
+      "example/components/**/*.{tsx,jsx}"
     ],
     "exclude": [
       "**/*.test.{tsx,jsx}",

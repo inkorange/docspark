@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { glob } from 'glob';
 import { spawn } from 'child_process';
+import { resolveAllDependencies } from './dependency-resolver';
 
 /**
  * Build the documentation website with user's components
@@ -10,7 +11,8 @@ import { spawn } from 'child_process';
 export async function buildWebsiteWithComponents(
   config: any,
   outputDir: string,
-  verbose: boolean
+  verbose: boolean,
+  skipTypeCheck: boolean = false
 ): Promise<void> {
   // Find website source directory
   const websiteSourceDir = findWebsiteSource();
@@ -33,29 +35,62 @@ export async function buildWebsiteWithComponents(
 
   const componentMap: Array<{ name: string; path: string; isNamed: boolean }> = [];
 
-  // Copy all component files
+  // Step 1: Find all component files matching patterns
+  const componentFiles: string[] = [];
   for (const pattern of config.source.include) {
     const files = await glob(pattern, {
       ignore: config.source.exclude || [],
       cwd: process.cwd(),
     });
+    componentFiles.push(...files.map(f => path.resolve(process.cwd(), f)));
+  }
 
-    for (const file of files) {
-      const sourcePath = path.resolve(process.cwd(), file);
-      const relativePath = file.replace(new RegExp(`^${baseDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`), '');
-      const targetPath = path.join(websitePreviewDir, relativePath);
+  if (verbose) {
+    console.log(`  📦 Found ${componentFiles.length} component files`);
+    console.log('  🔍 Analyzing dependencies...');
+  }
 
-      const targetDir = path.dirname(targetPath);
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-      }
+  // Step 2: Automatically resolve all dependencies (imports)
+  const allFilesToCopy = resolveAllDependencies(componentFiles, baseDir, verbose);
 
-      let content = fs.readFileSync(sourcePath, 'utf-8');
+  if (verbose) {
+    console.log(`  ✓ Resolved ${allFilesToCopy.size} total files (including dependencies)`);
+  }
+
+  // Step 3: Copy all files (components + dependencies)
+  for (const sourcePath of allFilesToCopy) {
+    // Calculate relative path from base directory
+    const relativePath = path.relative(path.resolve(process.cwd(), baseDir), sourcePath);
+
+    // Skip files outside the base directory (e.g., node_modules)
+    if (relativePath.startsWith('..')) {
+      continue;
+    }
+
+    const targetPath = path.join(websitePreviewDir, relativePath);
+
+    const targetDir = path.dirname(targetPath);
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Read and process content
+    let content = fs.readFileSync(sourcePath, 'utf-8');
+
+    // Only strip 'use client' from component files
+    if (sourcePath.endsWith('.tsx') || sourcePath.endsWith('.jsx')) {
       content = content.replace(/^['"]use client['"];?\s*\n/m, '');
+    }
 
-      fs.writeFileSync(targetPath, content, 'utf-8');
+    fs.writeFileSync(targetPath, content, 'utf-8');
 
-      const fileName = path.basename(file, path.extname(file));
+    // Build component map only for originally requested components (not dependencies)
+    const isOriginalComponent = componentFiles.some(cf =>
+      path.resolve(process.cwd(), cf) === sourcePath
+    );
+
+    if (isOriginalComponent && (sourcePath.endsWith('.tsx') || sourcePath.endsWith('.jsx'))) {
+      const fileName = path.basename(sourcePath, path.extname(sourcePath));
 
       // Try to find the actual export name from the file content
       let componentName = fileName;
@@ -80,25 +115,6 @@ export async function buildWebsiteWithComponents(
         path: './' + relativePath.replace(/\.(tsx|jsx|ts|js)$/, ''),
         isNamed: isNamed
       });
-    }
-  }
-
-  // Copy style files
-  const styleExtensions = config.source.styleFiles || ['.css', '.scss', '.module.css', '.module.scss'];
-  const stylePattern = `**/*{${styleExtensions.join(',')}}`;
-  const styleFiles = await glob(stylePattern, { cwd: baseDir });
-
-  for (const file of styleFiles) {
-    const sourcePath = path.join(baseDir, file);
-    const targetPath = path.join(websitePreviewDir, file);
-
-    const targetDir = path.dirname(targetPath);
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-
-    if (fs.existsSync(sourcePath)) {
-      fs.copyFileSync(sourcePath, targetPath);
     }
   }
 
@@ -160,7 +176,7 @@ ${componentMapCode}
     }
   }
 
-  await buildReactWebsite(websiteSourceDir, outputDir, verbose);
+  await buildReactWebsite(websiteSourceDir, outputDir, verbose, skipTypeCheck);
 
   // Restore metadata and themes after React build
   if (fs.existsSync(tempDir)) {
@@ -258,7 +274,7 @@ function installWebsiteDependencies(websiteDir: string, verbose: boolean): Promi
 /**
  * Build the React website using react-scripts
  */
-function buildReactWebsite(websiteDir: string, outputDir: string, verbose: boolean): Promise<void> {
+function buildReactWebsite(websiteDir: string, outputDir: string, verbose: boolean, skipTypeCheck: boolean): Promise<void> {
   return new Promise((resolve, reject) => {
     const npxCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
@@ -273,7 +289,11 @@ function buildReactWebsite(websiteDir: string, outputDir: string, verbose: boole
         env: {
           ...process.env,
           BUILD_PATH: absoluteOutputDir,
-          CI: 'true' // Treat warnings as warnings, not errors
+          CI: 'true', // Treat warnings as warnings, not errors
+          ...(skipTypeCheck ? {
+            TSC_COMPILE_ON_ERROR: 'true',  // Allow compilation despite TypeScript errors
+            SKIP_PREFLIGHT_CHECK: 'true'    // Skip preflight checks
+          } : {})
         },
         stdio: verbose ? 'inherit' : 'pipe',
         shell: true,
@@ -295,10 +315,31 @@ function buildReactWebsite(websiteDir: string, outputDir: string, verbose: boole
       if (code === 0) {
         resolve();
       } else {
+        // Parse output for useful error information
+        let errorSummary = `Website build failed with code ${code}`;
+
+        // Look for module resolution errors
+        const moduleNotFoundMatch = output.match(/Module not found:.*?Error: Can't resolve '([^']+)'/);
+        if (moduleNotFoundMatch) {
+          errorSummary = `Cannot find module "${moduleNotFoundMatch[1]}"`;
+        }
+
+        // Look for TypeScript errors
+        const tsErrorMatch = output.match(/TypeScript error in ([^:]+):\s*(.+)/);
+        if (tsErrorMatch) {
+          errorSummary = `TypeScript error in ${tsErrorMatch[1]}: ${tsErrorMatch[2]}`;
+        }
+
+        // Look for compilation errors
+        const compileErrorMatch = output.match(/Failed to compile\.\s*\n\s*(.+)/);
+        if (compileErrorMatch) {
+          errorSummary = compileErrorMatch[1].trim();
+        }
+
         if (!verbose) {
           console.error(output);
         }
-        reject(new Error(`Website build failed with code ${code}`));
+        reject(new Error(errorSummary));
       }
     });
 
