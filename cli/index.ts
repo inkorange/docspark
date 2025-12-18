@@ -25,6 +25,7 @@ program
   .option('-c, --config <path>', 'Config file path', './docspark.config.json')
   .option('--base-url <url>', 'Base URL for the site', '/')
   .option('--verbose', 'Verbose output')
+  .option('--enable-type-check', 'Enable TypeScript type checking during build (may prevent live previews if type errors exist)')
   .action(buildCommand);
 
 program

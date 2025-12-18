@@ -88,6 +88,7 @@ const InputField: React.FC<InputFieldProps> = ({
   fullWidth = false,
   className = '',
   disabled = false,
+  placeholder = 'Enter text...',
   ...props
 }) => {
   const inputClasses = [

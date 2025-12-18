@@ -5,11 +5,10 @@
 
   "source": {
     "include": [
-      "src/components/**/*.{tsx,jsx}"
+      "examples/sample/**/*.{tsx,jsx,ts}"
     ],
     "exclude": [
-      "**/*.test.{tsx,jsx}",
-      "**/*.stories.{tsx,jsx}"
+      "**/*.test.{tsx,jsx}"
     ],
     "styleFiles": [".css", ".scss", ".module.css", ".module.scss"]
   },
@@ -40,13 +39,13 @@
     "defaultValues": {
       "string": "Example text",
       "number": 42,
-      "children": "Button Text"
+      "children": "Example"
     }
   },
 
   "theme": {
     "tokens": [{
-      "default": { "source": "src/themes/tokens.css", "background": "#FFFFFF" }
+      "default": { "source": "examples/themes/tokens.css", "background": "#FFFFFF" }
     }],
     "primaryColor": "#0066cc"
   },

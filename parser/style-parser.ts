@@ -38,26 +38,24 @@ export class StyleParser {
 
   /**
    * Extract CSS variables from file content
-   * Reads both from comments and from actual CSS var() usage
+   * Only extracts variables explicitly documented in JSDoc comments
    */
   private extractCSSVariables(content: string): CSSVariable[] {
-    const variables: CSSVariable[] = [];
     const variableMap = new Map<string, CSSVariable>();
 
-    // First, extract from comment documentation
+    // Extract ONLY from comment documentation
     const commentVars = this.extractFromComments(content);
     commentVars.forEach(v => variableMap.set(v.name, v));
 
-    // Then, extract from actual CSS declarations
+    // Optionally enrich with default values from declarations, but ONLY for documented vars
     const declaredVars = this.extractFromDeclarations(content);
     declaredVars.forEach(v => {
       const existing = variableMap.get(v.name);
-      if (existing) {
-        // Merge: use comment description, but add default if found
-        variableMap.set(v.name, { ...existing, default: v.default || existing.default });
-      } else {
-        variableMap.set(v.name, v);
+      if (existing && v.default) {
+        // Only add default value to already documented variables
+        variableMap.set(v.name, { ...existing, default: v.default });
       }
+      // Do NOT add undocumented variables
     });
 
     return Array.from(variableMap.values());
@@ -65,7 +63,9 @@ export class StyleParser {
 
   /**
    * Extract CSS variables documented in comments
-   * Format: --variable-name: Description
+   * Supports two formats:
+   * 1. --variable-name: Description
+   * 2. --variable-name (just the name)
    */
   private extractFromComments(content: string): CSSVariable[] {
     const variables: CSSVariable[] = [];
@@ -77,11 +77,17 @@ export class StyleParser {
     if (!matches) return variables;
 
     for (const comment of matches) {
-      // Look for lines like: * --primary-background-color: Primary button background color
-      const varRegex = /\*\s*(--[\w-]+):\s*(.+)/g;
+      // Look for lines with CSS variables in two formats:
+      // Format 1: * --primary-background-color: Primary button background color
+      // CSS custom properties must start with a letter or underscore after --
+      const varWithDescRegex = /\*?\s*(--[a-zA-Z_][\w-]*):\s*(.+)/g;
+      // Format 2: --variable-name (just the name on its own line)
+      const varOnlyRegex = /\*?\s*(--[a-zA-Z_][\w-]*)\s*$/gm;
+
       let match;
 
-      while ((match = varRegex.exec(comment)) !== null) {
+      // First, try to match variables with descriptions
+      while ((match = varWithDescRegex.exec(comment)) !== null) {
         const name = match[1].trim();
         const description = match[2].trim();
 
@@ -89,6 +95,21 @@ export class StyleParser {
           name,
           description,
         });
+      }
+
+      // Then, match variables without descriptions (if not already found)
+      const foundNames = new Set(variables.map(v => v.name));
+      varWithDescRegex.lastIndex = 0; // Reset regex
+
+      while ((match = varOnlyRegex.exec(comment)) !== null) {
+        const name = match[1].trim();
+        if (!foundNames.has(name)) {
+          variables.push({
+            name,
+            description: '', // No description provided
+          });
+          foundNames.add(name);
+        }
       }
     }
 
@@ -104,7 +125,8 @@ export class StyleParser {
 
     // Match var() usage with fallbacks
     // e.g., var(--primary-color, #0066cc)
-    const varRegex = /var\((--[\w-]+)(?:,\s*([^)]+))?\)/g;
+    // CSS custom properties must start with a letter or underscore after --
+    const varRegex = /var\((--[a-zA-Z_][\w-]*)(?:,\s*([^)]+))?\)/g;
     let match;
 
     while ((match = varRegex.exec(content)) !== null) {
