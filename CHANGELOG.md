@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7
+
+### Patch Changes
+
+- a832727: Fix to Live Preview Issues
+
 ## 0.1.6
 
 ### Patch Changes
