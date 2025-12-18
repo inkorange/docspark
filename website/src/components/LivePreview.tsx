@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { COMPONENT_MAP } from '../preview-components';
+import { useCSSVariablesVersion } from '../contexts/CSSVariablesContext';
 import './LivePreview.scss';
 
 // Extend window interface for component loading
@@ -78,6 +79,17 @@ const LivePreview: React.FC<LivePreviewProps> = ({
 }) => {
   const [error, setError] = useState<string | null>(null);
   const [Component, setComponent] = useState<React.ComponentType<any> | null>(null);
+  const [mounted, setMounted] = useState(true);
+  const { version, customCSSVariables } = useCSSVariablesVersion();
+
+  // Force unmount and remount when version changes to recalculate CSS variables
+  useEffect(() => {
+    setMounted(false);
+    // Use requestAnimationFrame to ensure DOM update before remounting
+    requestAnimationFrame(() => {
+      setMounted(true);
+    });
+  }, [version]);
 
   // Process props to convert HTML strings to React elements
   // Must be called before any conditional returns (Rules of Hooks)
@@ -147,11 +159,28 @@ const LivePreview: React.FC<LivePreviewProps> = ({
     );
   }
 
+  // Don't render component if we're in the process of remounting
+  if (!mounted) {
+    return null;
+  }
+
+  // Create inline style object with custom CSS variables
+  const customStyles = Object.entries(customCSSVariables).reduce((acc, [varName, value]) => {
+    acc[varName] = value;
+    return acc;
+  }, {} as Record<string, string>);
+
   // Render the actual component wrapped in error boundary
+  // Include version in key to force re-render when CSS variables change
+  // Apply custom CSS variables as inline styles to override CSS Module scoping
   return (
-    <ComponentErrorBoundary>
-      <div className="live-preview-wrapper">
-        <Component {...processedProps} />
+    <ComponentErrorBoundary key={`error-boundary-${version}`}>
+      <div
+        className="live-preview-wrapper"
+        data-version={version}
+        style={customStyles as React.CSSProperties}
+      >
+        <Component {...processedProps} key={`component-${version}`} />
       </div>
     </ComponentErrorBoundary>
   );

@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./Dialog.js",
-  "main": "./Dialog.js",
-  "types": "../types/Dialog.d.ts"
-}

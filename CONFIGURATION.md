@@ -417,6 +417,27 @@ Path to a favicon for the documentation site.
 }
 ```
 
+### `theme.customStylesheet` (optional)
+**Type:** `string`
+
+Path to a custom CSS stylesheet to include in the documentation site. Use this to add global styles or override DocSpark's default styling beyond what's possible with theme tokens.
+
+```json
+{
+  "theme": {
+    "customStylesheet": "./styles/custom-docs.css"
+  }
+}
+```
+
+**Use cases:**
+- Custom fonts or typography
+- Layout adjustments
+- Branding-specific styles
+- Global utility classes
+
+**Note:** This stylesheet is loaded after the theme tokens, so you can override any default styles. For component-specific theming, prefer using `theme.tokens` instead.
+
 ---
 
 ## Coverage Configuration

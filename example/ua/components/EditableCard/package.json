@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./EditableCard.js",
-  "main": "./EditableCard.js",
-  "types": "../types/EditableCard.d.ts"
-}

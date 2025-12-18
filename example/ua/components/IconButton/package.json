@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./IconButton.js",
-  "main": "./IconButton.js",
-  "types": "../types/IconButton.d.ts"
-}

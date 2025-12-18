@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./Select.js",
-  "main": "./Select.js",
-  "types": "../types/Select.d.ts"
-}

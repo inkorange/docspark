@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CSSVariable } from '../types/metadata';
+import { useCSSVariablesVersion } from '../contexts/CSSVariablesContext';
 import './CSSVariablesTable.scss';
 
 interface CSSVariablesTableProps {
@@ -10,6 +11,7 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
+  const { incrementVersion, setCustomCSSVariables } = useCSSVariablesVersion();
 
   // Apply CSS variables to the document root when customValues change
   useEffect(() => {
@@ -18,6 +20,10 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
       variables.forEach((variable) => {
         document.documentElement.style.removeProperty(variable.name);
       });
+      // Clear custom variables in context
+      setCustomCSSVariables({});
+      // Trigger re-render of LivePreview components
+      incrementVersion();
       return;
     }
 
@@ -38,6 +44,12 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
       }
     });
 
+    // Store custom variables in context so LivePreview can apply them
+    setCustomCSSVariables(customValues);
+
+    // Trigger re-render of LivePreview components to pick up CSS variable changes
+    incrementVersion();
+
     // Cleanup function when component unmounts or editMode changes
     return () => {
       // Clean up all variables when exiting edit mode or unmounting
@@ -45,7 +57,7 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
         document.documentElement.style.removeProperty(variable.name);
       });
     };
-  }, [customValues, editMode, variables]);
+  }, [customValues, editMode, variables, incrementVersion]);
 
   if (variables.length === 0) {
     return null;

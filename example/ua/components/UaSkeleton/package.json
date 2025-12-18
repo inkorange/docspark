@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./UaSkeleton.js",
-  "main": "./UaSkeleton.js",
-  "types": "../types/UaSkeleton.d.ts"
-}

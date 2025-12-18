@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./RadioSelectionRow.js",
-  "main": "./RadioSelectionRow.js",
-  "types": "../types/RadioSelectionRow.d.ts"
-}

@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./ArcScale.js",
-  "main": "./ArcScale.js",
-  "types": "../types/ArcScale.d.ts"
-}

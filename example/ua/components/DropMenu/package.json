@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./DropMenu.js",
-  "main": "./DropMenu.js",
-  "types": "../types/DropMenu.d.ts"
-}
