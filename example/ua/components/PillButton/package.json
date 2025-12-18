@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./PillButton.js",
+  "main": "./PillButton.js",
+  "types": "../types/PillButton.d.ts"
+}

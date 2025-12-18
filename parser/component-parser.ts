@@ -82,13 +82,19 @@ export class ComponentParser {
   /**
    * Find the props interface for a component
    */
-  private findPropsInterface(sourceFile: any, componentName: string): InterfaceDeclaration | null {
+  private findPropsInterface(sourceFile: any, componentName: string): InterfaceDeclaration | TypeAliasDeclaration | null {
     // Try to find interface with filename pattern (e.g., Button2Props for Button2.tsx)
     const fileBasedPropsName = `${componentName}Props`;
     let propsInterface = sourceFile.getInterface(fileBasedPropsName);
 
     if (propsInterface) {
       return propsInterface;
+    }
+
+    // Also check for type alias with the same pattern
+    let propsTypeAlias = sourceFile.getTypeAlias(fileBasedPropsName);
+    if (propsTypeAlias) {
+      return propsTypeAlias;
     }
 
     // If not found, try to find the actual component and infer the props interface
@@ -114,18 +120,41 @@ export class ComponentParser {
             if (propsInterface) {
               return propsInterface;
             }
+            // Also check type alias
+            propsTypeAlias = sourceFile.getTypeAlias(match[1]);
+            if (propsTypeAlias) {
+              return propsTypeAlias;
+            }
           }
         }
       }
     }
 
-    // Fallback: Find any interface ending with "Props"
+    // Fallback: Find any interface or type alias ending with "Props"
     const allInterfaces = sourceFile.getInterfaces();
     const propsInterfaces = allInterfaces.filter((iface: any) =>
       iface.getName().endsWith('Props')
     );
 
     if (propsInterfaces.length === 1) {
+      return propsInterfaces[0];
+    }
+
+    // Check type aliases too
+    const allTypeAliases = sourceFile.getTypeAliases();
+    const propsTypeAliases = allTypeAliases.filter((alias: any) =>
+      alias.getName().endsWith('Props')
+    );
+
+    if (propsTypeAliases.length === 1) {
+      return propsTypeAliases[0];
+    }
+
+    // If we found exactly one Props declaration across both, use it
+    if (propsInterfaces.length === 0 && propsTypeAliases.length === 1) {
+      return propsTypeAliases[0];
+    }
+    if (propsInterfaces.length === 1 && propsTypeAliases.length === 0) {
       return propsInterfaces[0];
     }
 
@@ -286,17 +315,22 @@ export class ComponentParser {
   }
 
   /**
-   * Extract prop metadata from interface
+   * Extract prop metadata from interface or type alias
    */
-  private extractProps(propsInterface: InterfaceDeclaration, sourceFile: any, fileName: string): Record<string, PropMetadata> {
+  private extractProps(propsInterface: InterfaceDeclaration | TypeAliasDeclaration, sourceFile: any, fileName: string): Record<string, PropMetadata> {
     const props: Record<string, PropMetadata> = {};
 
+    // Check if this is a type alias with an object type
+    if (propsInterface.getKind() === SyntaxKind.TypeAliasDeclaration) {
+      return this.extractPropsFromTypeAlias(propsInterface as TypeAliasDeclaration, sourceFile, fileName);
+    }
+
     // First, collect props from extended interfaces (excluding React/HTML element types)
-    const extendedProps = this.extractPropsFromExtends(propsInterface, sourceFile, fileName);
+    const extendedProps = this.extractPropsFromExtends(propsInterface as InterfaceDeclaration, sourceFile, fileName);
     Object.assign(props, extendedProps);
 
     // Then add/override with props defined directly on this interface
-    for (const prop of propsInterface.getProperties()) {
+    for (const prop of (propsInterface as InterfaceDeclaration).getProperties()) {
       const propName = prop.getName();
       const propType = prop.getType();
       const typeText = prop.getTypeNode()?.getText() || propType.getText();
@@ -317,6 +351,103 @@ export class ComponentParser {
           const sourceFileText = prop.getSourceFile().getFullText();
           const commentText = leadingComments
             .map(range => sourceFileText.slice(range.getPos(), range.getEnd()))
+            .join('\n')
+            .replace(/\/\*\*?|\*\/|\*/g, '')
+            .trim();
+
+          // Parse tags from comments using @ syntax
+          tags = this.parseTagsFromComments(commentText);
+
+          // Use comment text as description if no tags were found
+          if (Object.keys(tags).length === 0) {
+            description = commentText;
+          }
+        }
+      }
+
+      // Check if it's a union type
+      const values = this.extractUnionValues(prop.getTypeNode());
+
+      // Try to find default value from component implementation or JSDoc
+      const componentFunc = sourceFile.getFunctions().find((f: any) => f.getName() === fileName);
+      const componentVar = sourceFile.getVariableDeclaration(fileName);
+      const componentNode = componentFunc || componentVar;
+
+      // Check for explicit @default tag in JSDoc first
+      let defaultValue: string | undefined;
+      let defaultSource: 'inferred' | 'explicit' | undefined;
+
+      if (tags.default) {
+        defaultValue = tags.default;
+        defaultSource = 'explicit';
+      } else {
+        // Infer from component implementation
+        const inferredDefault = this.findDefaultValue(componentNode, propName);
+        if (inferredDefault) {
+          defaultValue = inferredDefault.value;
+          defaultSource = inferredDefault.source;
+        }
+      }
+
+      props[propName] = {
+        type: typeText,
+        values,
+        optional,
+        default: defaultValue,
+        defaultSource,
+        description,
+        renderVariants: tags.renderVariants === 'true',
+        displayTemplate: tags.displayTemplate,
+        hideInDocs: tags.hideInDocs === 'true',
+        example: tags.example,
+        excludedWith: tags.variantExclude ? tags.variantExclude.split(/[\s,]+/).filter(Boolean) : undefined,
+      };
+    }
+
+    return props;
+  }
+
+  /**
+   * Extract prop metadata from type alias with object type
+   */
+  private extractPropsFromTypeAlias(typeAlias: TypeAliasDeclaration, sourceFile: any, fileName: string): Record<string, PropMetadata> {
+    const props: Record<string, PropMetadata> = {};
+    const typeNode = typeAlias.getTypeNode();
+
+    // Check if the type node is an object type (TypeLiteral)
+    if (!typeNode || typeNode.getKind() !== SyntaxKind.TypeLiteral) {
+      return props;
+    }
+
+    // Get all properties from the type literal
+    const members = (typeNode as any).getMembers();
+
+    for (const prop of members) {
+      // Only process property signatures
+      if (prop.getKind() !== SyntaxKind.PropertySignature) {
+        continue;
+      }
+
+      const propName = prop.getName();
+      const propType = prop.getType();
+      const typeText = prop.getTypeNode()?.getText() || propType.getText();
+      const optional = prop.hasQuestionToken();
+
+      // Extract JSDoc comment or leading comments
+      const jsDocs = prop.getJsDocs();
+      let description = jsDocs[0]?.getDescription().trim() || '';
+      let tags: Record<string, string> = {};
+
+      // If JSDoc exists, parse its tags (even if description is empty)
+      if (jsDocs && jsDocs.length > 0) {
+        tags = this.parseJSDocTags(jsDocs);
+      } else {
+        // If no JSDoc, try to get leading comments
+        const leadingComments = prop.getLeadingCommentRanges();
+        if (leadingComments && leadingComments.length > 0) {
+          const sourceFileText = prop.getSourceFile().getFullText();
+          const commentText = leadingComments
+            .map((range: any) => sourceFileText.slice(range.getPos(), range.getEnd()))
             .join('\n')
             .replace(/\/\*\*?|\*\/|\*/g, '')
             .trim();

@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./Radio.js",
+  "main": "./Radio.js",
+  "types": "../types/Radio.d.ts"
+}

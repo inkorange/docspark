@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./Checkbox.js",
+  "main": "./Checkbox.js",
+  "types": "../types/Checkbox.d.ts"
+}

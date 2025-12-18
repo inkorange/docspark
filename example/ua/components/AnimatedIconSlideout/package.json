@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./AnimatedIconSlideout.js",
+  "main": "./AnimatedIconSlideout.js",
+  "types": "../types/AnimatedIconSlideout.d.ts"
+}

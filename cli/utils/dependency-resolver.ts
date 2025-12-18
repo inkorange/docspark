@@ -10,31 +10,75 @@ export interface ResolvedDependency {
 /**
  * Analyze imports in a file and resolve them to actual file paths
  */
-export function analyzeImports(filePath: string, baseDir: string): string[] {
+export function analyzeImports(filePath: string, baseDir: string, importAliases?: Record<string, string>): string[] {
   const content = fs.readFileSync(filePath, 'utf-8');
   const fileDir = path.dirname(filePath);
   const imports: string[] = [];
 
-  // Match various import patterns:
-  // import X from './path'
-  // import { X } from '../path'
-  // import * as X from '@/path'
-  // import './styles.css'
-  const importRegex = /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+)?['"]([^'"]+)['"]/g;
+  // Check if this is a SCSS/CSS file
+  const isStyleFile = filePath.endsWith('.scss') || filePath.endsWith('.css');
 
-  let match;
-  while ((match = importRegex.exec(content)) !== null) {
-    const importPath = match[1];
+  if (isStyleFile) {
+    // Match SCSS/CSS @use and @import statements
+    // @use '../styles/breakpoints' as breakpoints;
+    // @import '../styles/mixins';
+    const scssImportRegex = /@(?:use|import)\s+['"]([^'"]+)['"]/g;
 
-    // Skip node_modules imports (react, lodash, etc.)
-    if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
-      continue;
+    let match;
+    while ((match = scssImportRegex.exec(content)) !== null) {
+      const importPath = match[1];
+
+      // Resolve relative import to absolute path
+      const resolvedPath = resolveImportPath(importPath, fileDir, baseDir);
+      if (resolvedPath) {
+        imports.push(resolvedPath);
+      } else {
+        // Debug: log failed resolutions
+        console.warn(`     ⚠️  Could not resolve SCSS import "${importPath}" from ${path.relative(process.cwd(), filePath)}`);
+      }
     }
+  } else {
+    // Match JavaScript/TypeScript import patterns:
+    // import X from './path'
+    // import { X } from '../path'
+    // import * as X from '@/path'
+    // import './styles.css'
+    const importRegex = /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+)?['"]([^'"]+)['"]/g;
 
-    // Resolve relative import to absolute path
-    const resolvedPath = resolveImportPath(importPath, fileDir, baseDir);
-    if (resolvedPath) {
-      imports.push(resolvedPath);
+    let match;
+    while ((match = importRegex.exec(content)) !== null) {
+      const importPath = match[1];
+
+      // Check if this is an aliased import
+      let resolvedPath: string | null = null;
+
+      if (importAliases) {
+        for (const [alias, aliasPath] of Object.entries(importAliases)) {
+          if (importPath.startsWith(alias)) {
+            // Convert alias to actual path
+            const relativePart = importPath.substring(alias.length);
+            const resolvedAlias = aliasPath.replace(/\/$/, '');
+            const absolutePath = path.join(process.cwd(), resolvedAlias, relativePart);
+            resolvedPath = resolveImportPath(absolutePath, process.cwd(), baseDir);
+            break;
+          }
+        }
+      }
+
+      // If not an alias, handle as relative/absolute import
+      if (!resolvedPath) {
+        // Skip node_modules imports (react, lodash, etc.)
+        if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
+          continue;
+        }
+
+        // Resolve relative import to absolute path
+        resolvedPath = resolveImportPath(importPath, fileDir, baseDir);
+      }
+
+      if (resolvedPath) {
+        imports.push(resolvedPath);
+      }
     }
   }
 
@@ -86,7 +130,8 @@ function resolveImportPath(importPath: string, fileDir: string, baseDir: string)
 export function resolveAllDependencies(
   componentFiles: string[],
   baseDir: string,
-  verbose: boolean = false
+  verbose: boolean = false,
+  importAliases?: Record<string, string>
 ): Set<string> {
   const allDependencies = new Set<string>();
   const visited = new Set<string>();
@@ -118,10 +163,14 @@ export function resolveAllDependencies(
 
     // Analyze imports in this file
     try {
-      const imports = analyzeImports(currentFile, baseDir);
+      const imports = analyzeImports(currentFile, baseDir, importAliases);
 
       if (verbose && imports.length > 0) {
-        console.log(`  📦 ${path.relative(process.cwd(), currentFile)} imports ${imports.length} files`);
+        const fileType = currentFile.endsWith('.scss') || currentFile.endsWith('.css') ? 'SCSS' : '';
+        console.log(`  📦 ${fileType ? fileType + ' ' : ''}${path.relative(process.cwd(), currentFile)} imports ${imports.length} files`);
+        if (fileType && verbose) {
+          imports.forEach(imp => console.log(`     → ${path.relative(process.cwd(), imp)}`));
+        }
       }
 
       // Add unvisited imports to queue

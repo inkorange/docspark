@@ -12,6 +12,7 @@ export interface DocSparkConfig {
     include: string[];
     exclude?: string[];
     styleFiles?: string[];
+    importAliases?: Record<string, string>;
   };
 
   output: {

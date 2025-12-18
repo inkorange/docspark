@@ -79,9 +79,10 @@ export class StyleParser {
     for (const comment of matches) {
       // Look for lines with CSS variables in two formats:
       // Format 1: * --primary-background-color: Primary button background color
-      const varWithDescRegex = /\*?\s*(--[\w-]+):\s*(.+)/g;
+      // CSS custom properties must start with a letter or underscore after --
+      const varWithDescRegex = /\*?\s*(--[a-zA-Z_][\w-]*):\s*(.+)/g;
       // Format 2: --variable-name (just the name on its own line)
-      const varOnlyRegex = /\*?\s*(--[\w-]+)\s*$/gm;
+      const varOnlyRegex = /\*?\s*(--[a-zA-Z_][\w-]*)\s*$/gm;
 
       let match;
 
@@ -124,7 +125,8 @@ export class StyleParser {
 
     // Match var() usage with fallbacks
     // e.g., var(--primary-color, #0066cc)
-    const varRegex = /var\((--[\w-]+)(?:,\s*([^)]+))?\)/g;
+    // CSS custom properties must start with a letter or underscore after --
+    const varRegex = /var\((--[a-zA-Z_][\w-]*)(?:,\s*([^)]+))?\)/g;
     let match;
 
     while ((match = varRegex.exec(content)) !== null) {

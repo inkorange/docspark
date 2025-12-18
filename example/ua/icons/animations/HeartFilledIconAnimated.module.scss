@@ -1,0 +1,74 @@
+.heart_filled_icon_animated {
+	--fav-animation-duration: 1.75s;
+
+	> path:last-of-type {
+		fill: transparent;
+		stroke: currentColor;
+	}
+
+	> path:first-of-type {
+		fill: currentColor;
+		stroke: currentColor;
+		opacity: 0;
+		transition: opacity calc(var(--fav-animation-duration) * 0.2) ease-in-out calc(var(--fav-animation-duration) * 0.4);
+		animation: none;
+	}
+
+	circle {
+		stroke: currentColor;
+		fill: transparent;
+		stroke-dasharray: 107;
+		stroke-dashoffset: 107;
+		transform: rotate(-90deg);
+		transform-origin: 20px 20px;
+		stroke-linecap: round;
+		animation: none;
+	}
+
+	&[data-selected='true'] {
+		> path:first-of-type {
+			opacity: 1;
+		}
+
+		> circle {
+			stroke: currentColor;
+			animation: dashGrow var(--fav-animation-duration) ease-in-out forwards;
+		}
+	}
+
+	&[data-selected='false'] {
+		> circle {
+			animation: dashShrink var(--fav-animation-duration) ease-in-out forwards;
+		}
+	}
+}
+
+@keyframes dashGrow {
+	0% {
+		stroke-dashoffset: 107;
+		rotate: 0deg;
+	}
+	50% {
+		stroke-dashoffset: 0;
+		rotate: 0deg;
+	}
+	100% {
+		stroke-dashoffset: 107;
+		rotate: 360deg;
+	}
+}
+
+@keyframes dashShrink {
+	0% {
+		stroke-dashoffset: 107;
+		rotate: 0deg;
+	}
+	50% {
+		stroke-dashoffset: 0;
+		rotate: -360deg;
+	}
+	100% {
+		stroke-dashoffset: 107;
+		rotate: -360deg;
+	}
+}

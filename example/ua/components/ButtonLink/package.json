@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./ButtonLink.js",
+  "main": "./ButtonLink.js",
+  "types": "../types/ButtonLink.d.ts"
+}

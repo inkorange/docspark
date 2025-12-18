@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { COMPONENT_MAP } from '../preview-components';
 import './LivePreview.scss';
 
@@ -6,6 +6,46 @@ import './LivePreview.scss';
 declare global {
   interface Window {
     DOCSPARK_COMPONENTS?: Record<string, any>;
+  }
+}
+
+// Error Boundary to catch component rendering errors
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ComponentErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Component render error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="live-preview-error">
+          <span className="error-icon">⚠️</span>
+          <span className="error-message">
+            Render error: {this.state.error?.message || 'Component failed to render'}
+          </span>
+        </div>
+      );
+    }
+
+    return this.props.children;
   }
 }
 
@@ -107,23 +147,14 @@ const LivePreview: React.FC<LivePreviewProps> = ({
     );
   }
 
-  // Render the actual component
-  try {
-    return (
+  // Render the actual component wrapped in error boundary
+  return (
+    <ComponentErrorBoundary>
       <div className="live-preview-wrapper">
         <Component {...processedProps} />
       </div>
-    );
-  } catch (err) {
-    return (
-      <div className="live-preview-error">
-        <span className="error-icon">⚠️</span>
-        <span className="error-message">
-          Render error: {err instanceof Error ? err.message : 'Unknown error'}
-        </span>
-      </div>
-    );
-  }
+    </ComponentErrorBoundary>
+  );
 };
 
 export default LivePreview;

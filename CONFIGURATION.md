@@ -111,6 +111,68 @@ File extensions to look for when searching for component styles. DocSpark will a
 }
 ```
 
+### `source.importAliases` (optional)
+**Type:** `Record<string, string>`
+**Default:** `undefined`
+
+Maps import path aliases to actual file paths, similar to TypeScript's `paths` configuration or webpack's `resolve.alias`. This is essential for monorepos or projects that use package-scoped imports.
+
+When DocSpark builds the live preview website, it copies your components and needs to resolve all imports. If your components use import aliases like `@company/components/Button` or `~/utils/helper`, DocSpark won't know where to find these files. The `importAliases` configuration tells DocSpark how to resolve these aliases.
+
+**How it works:**
+1. During dependency resolution, DocSpark converts aliased imports to actual file paths
+2. During the build phase, DocSpark rewrites the import statements to use relative paths
+3. This ensures the preview website can correctly import all dependencies
+
+```json
+{
+  "source": {
+    "include": [
+      "packages/core/components/**/*.{tsx,jsx}",
+      "packages/core/providers/**/*.{tsx,jsx}",
+      "packages/core/icons/**/*.tsx"
+    ],
+    "importAliases": {
+      "@ua-web-components/": "packages/core/",
+      "~/": "packages/core/"
+    }
+  }
+}
+```
+
+**Example usage:**
+
+If your component has this import:
+```typescript
+import { UIComponentsProvider } from '@ua-web-components/providers/UIComponentsProvider';
+import { QuestionCircleIcon } from '~/icons/QuestionCircleIcon';
+```
+
+DocSpark will:
+1. Resolve `@ua-web-components/providers/UIComponentsProvider` to `packages/core/providers/UIComponentsProvider.tsx`
+2. Resolve `~/icons/QuestionCircleIcon` to `packages/core/icons/QuestionCircleIcon.tsx`
+3. Copy both files to the website build directory
+4. Rewrite the imports to use relative paths like `../../providers/UIComponentsProvider` and `../../icons/QuestionCircleIcon`
+
+**Common use cases:**
+- **Monorepo packages:** `"@mycompany/components/": "packages/components/"`
+- **Tilde alias:** `"~/": "src/"`
+- **@-prefix alias:** `"@/": "src/"`
+- **Multiple packages:**
+  ```json
+  {
+    "@mycompany/ui/": "packages/ui/",
+    "@mycompany/icons/": "packages/icons/",
+    "@mycompany/utils/": "packages/utils/"
+  }
+  ```
+
+**Important notes:**
+- Alias keys should end with `/` to match directory imports
+- Alias values should be relative to your project root (where `docspark.config.json` lives)
+- Alias values should NOT start with `./` (use `packages/core/` not `./packages/core/`)
+- This only affects the live preview build; the generated documentation metadata is unaffected
+
 ---
 
 ## Output Configuration

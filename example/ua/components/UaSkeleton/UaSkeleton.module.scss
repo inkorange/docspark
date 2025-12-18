@@ -1,0 +1,28 @@
+.skeleton {
+	animation: skeleton-loading 1s linear infinite alternate;
+	line-height: 1;
+}
+
+// for documentation purposes
+.text-body {
+	font-size: var(--font-size-body);
+}
+
+.text-h6 {
+	font-size: var(--font-size-h6);
+}
+
+.text-h3 {
+	font-size: var(--font-size-h3);
+}
+
+@keyframes skeleton-loading {
+	0% {
+		background-color: hsl(200, 20%, 80%);
+		opacity: 0.33;
+	}
+	100% {
+		background-color: hsl(200, 20%, 95%);
+		opacity: 0.85;
+	}
+}

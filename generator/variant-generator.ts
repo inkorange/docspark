@@ -230,6 +230,12 @@ export class VariantGenerator {
       }
     }
 
+    // Always add children if not present and component doesn't have it in props
+    // This handles cases where children comes from React.ComponentPropsWithoutRef
+    if (!result.children && !allProps.children) {
+      result.children = this.defaultValues.children;
+    }
+
     return result;
   }
 

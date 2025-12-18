@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./NavigationDrawer.js",
+  "main": "./NavigationDrawer.js",
+  "types": "../types/NavigationDrawer.d.ts"
+}

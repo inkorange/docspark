@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./DropPanel.js",
+  "main": "./DropPanel.js",
+  "types": "../types/DropPanel.d.ts"
+}

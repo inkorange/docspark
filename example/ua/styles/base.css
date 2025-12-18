@@ -1,0 +1,102 @@
+:root {
+	--color-white: #ffffff;
+	--color-black: #1d1d1d;
+	--color-grey-1: #f7f7f7;
+	--color-grey-2: #f0f0f0;
+	--color-grey-3: #d0d0d0;
+	--color-grey-4: #949494;
+	--color-grey-5: #5f5f5f;
+	--color-grey-6: #444;
+	--color-grey-7: #b4b4b4;
+	--color-grey-8: #8c8c8c;
+	--color-grey-9: #ccc;
+	--color-grey-10: #f3f3f3;
+	--color-grey-11: #a3a3a3;
+	--color-grey-12: #969696;
+
+	--color-red: #dc0019;
+	--color-red-1: #e51b24;
+	--color-red-2: #ff2a29;
+	--color-red-3: #fab2ba;
+	--color-red-4: #e93e51;
+
+	--color-ghost-option: #190c0c;
+	--color-green: #00834b;
+	--color-dark-green: #008850;
+	--color-mint-green: #e5f3ed;
+	--color-amber: #ffc700;
+
+	/* Shared Component Colors */
+	--color-page-background: var(--color-white);
+	--color-primary-text: var(--color-black);
+
+	/* Spacing */
+	--spacing-4xs: 2px;
+	--spacing-3xs: 4px;
+	--spacing-2xs: 8px;
+	--spacing-xs: 16px;
+	--spacing-sm: 24px;
+	--spacing-md: 32px;
+	--spacing-2md: 40px;
+	--spacing-3md: 48px;
+	--spacing-lg: 56px;
+	--spacing-xl: 64px;
+	--spacing-2xl: 80px;
+	--spacing-3xl: 120px;
+
+	/* Typography Family */
+	--font-default: var(--font-base, 'Sans serif');
+	--font-alternate: var(--font-alternative, 'Sans serif');
+
+	/* Typography Font Sizes (Root `font-size` = `16px`) */
+	--font-size-legal: calc(10rem / 16);
+	--font-size-subtext: calc(12rem / 16);
+	--font-size-body: calc(14rem / 16);
+	--font-size-body-large: calc(15rem / 16);
+	--font-size-body-larger: calc(20rem / 16);
+	--font-size-h6-large: calc(20rem / 16);
+	--font-size-h6: calc(16rem / 16);
+	--font-size-h5: calc(24rem / 16);
+	--font-size-h4: calc(32rem / 16);
+	--font-size-h3: calc(40rem / 16);
+	--font-size-h2: calc(48rem / 16);
+	--font-size-h1: calc(64rem / 16);
+
+	/* Font Weights */
+	--font-regular: 400;
+	--font-semibold: 600;
+	--font-bold: 700;
+	--font-condensed-black: 800;
+	--font-extended: 1000;
+
+	--border-radius-small: 3px;
+	--border-radius-round: 50%;
+
+	/* -------------------- Elements -------------------- */
+	--safe-margin-bottom: 0px;
+	--header-height: 97px;
+	--safe-margin-top: 0px;
+	--field-row-spacing: 20px;
+}
+
+/* _visually_ hides an element while leaving it available for screen readers */
+.visually-hidden {
+	/* Do not obscure the DOM layout. */
+	position: absolute;
+
+	/* Prevent element from spacing itself out. */
+	border: 0;
+	padding: 0;
+	margin: 0;
+
+	/* Place text in screen-readable (non-zero-sized) block. Then clip the block so that it isn't visible (to the eye). */
+	width: 1px;
+	height: 1px;
+	clip-path: inset(50%);
+
+	/* Help screen readers see full sentences (instead of multilined, separated letters). */
+	white-space: nowrap;
+
+	/* Make element unscrollable.*/
+	overflow: hidden;
+}

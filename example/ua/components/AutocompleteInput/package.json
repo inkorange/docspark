@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./AutocompleteInput.js",
+  "main": "./AutocompleteInput.js",
+  "types": "../types/AutocompleteInput.d.ts"
+}

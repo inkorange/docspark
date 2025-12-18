@@ -1,0 +1,135 @@
+@use '../styles/breakpoints' as *;
+@use '../styles/typography' as *;
+
+/**
+NavigationDrawer Tokens Referenced:
+--NavigationDrawer-mobile-width
+--NavigationDrawer-tablet-width
+--NavigationDrawer-desktop-width
+--NavigationDrawer-background-color
+--NavigationDrawer-text-color
+
+App Environment Variables:
+--safe-margin-bottom
+--color-primary-text
+*/
+
+.nav-menu {
+	--NavigationDrawer-mobile-width-local: var(--NavigationDrawer-mobile-width, 100%);
+	--NavigationDrawer-tablet-width-local: var(--NavigationDrawer-tablet-width, 62.5%);
+	--NavigationDrawer-desktop-width-local: var(--NavigationDrawer-desktop-width, 420px);
+	--NavigationDrawer-background-color-local: var(--NavigationDrawer-background-color, #ffffff);
+	--NavigationDrawer-text-color-local: var(--NavigationDrawer-text-color, #1d1d1d);
+	--zindex-base: 1000;
+
+	display: flex;
+	position: fixed;
+	flex-direction: column;
+	justify-content: flex-start;
+	z-index: var(--zindex-base);
+	/* Use transform for hardware-accelerated sliding */
+	will-change: transform;
+	transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0.5s;
+	background-color: var(--NavigationDrawer-background-color-local);
+	color: var(--color-primary-text);
+	top: 0;
+	/* left/right are set per-direction above */
+	height: calc(100dvh - var(--safe-margin-bottom));
+
+	visibility: hidden;
+	margin-top: var(--safe-margin-top);
+	width: var(--NavigationDrawer-mobile-width-local);
+
+	&[data-direction='left'] {
+		/* pin to the left edge; slide with translateX */
+		left: 0;
+		right: auto;
+		transform: translateX(-100%);
+
+		&[data-open='true'] {
+			transform: translateX(0);
+		}
+	}
+
+	&[data-direction='right'] {
+		/* pin to the right edge; slide with translateX */
+		right: 0;
+		left: auto;
+		transform: translateX(100%);
+
+		&[data-open='true'] {
+			transform: translateX(0);
+		}
+	}
+
+	&[data-open='true'] {
+		visibility: visible;
+		transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0s;
+		display: flex; /* keep flex so child flex items (like --content) can size and scroll */
+	}
+
+	@include bp-tablet-only {
+		width: var(--NavigationDrawer-tablet-width-local);
+	}
+	@include bp-desktop-up {
+		width: var(--NavigationDrawer-desktop-width-local);
+	}
+
+	> * {
+		background-color: var(--NavigationDrawer-background-color-local);
+	}
+
+	&--close {
+		position: absolute;
+		top: var(--spacing-sm);
+		right: var(--spacing-sm);
+		z-index: calc(var(--zindex-base) + 2);
+		svg {
+			color: var(--color-primary-text);
+		}
+	}
+
+	&--title {
+		@include h5(var(--font-bold));
+		margin: 0;
+		padding: var(--spacing-sm) var(--spacing-xl) var(--spacing-2xs) var(--spacing-sm);
+		position: relative;
+		z-index: calc(var(--zindex-base) + 1);
+	}
+
+	&--content {
+		padding: var(--spacing-sm) var(--spacing-xs) 0 var(--spacing-xs);
+		/* allow this region to take remaining space and scroll internally */
+		flex: 1 1 auto;
+		min-height: 0; /* required so flex children can overflow properly on some browsers */
+		overflow-y: auto;
+		position: relative;
+		z-index: calc(var(--zindex-base) + 1);
+	}
+}
+
+.nav-drawer-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	/* keep the overlay behind the nav content by using a lower z-index */
+	z-index: calc(var(--zindex-base) - 1);
+	/*
+        Animate opacity, but delay changing visibility OFF until after opacity has transitioned
+        - opacity transitions over 0.5s
+        - visibility uses a 0s-duration transition with a delay so it happens after opacity
+    */
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 0.5s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0.5s;
+
+	&[data-open='true'] {
+		/* make visible immediately, then fade in */
+		visibility: visible;
+		opacity: 1;
+		transition: opacity 0.5s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0s;
+	}
+}

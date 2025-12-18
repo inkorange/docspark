@@ -1,0 +1,190 @@
+@use '../styles/typography' as *;
+@use '../styles/breakpoints' as *;
+
+/**
+	AnimatedIconSlideout Design Tokens Referenced:
+	
+	--AnimatedIconSlideout-border-radius
+	--AnimatedIconSlideout-button-height
+	--AnimatedIconSlideout-max-width
+	--AnimatedIconSlideout-background-color
+	--AnimatedIconSlideout-text-color
+*/
+
+@mixin animation-left-start {
+	> div {
+		left: 0;
+	}
+}
+
+@mixin animation-right-start {
+	> div {
+		left: 0;
+	}
+}
+
+@mixin animation-fade-out {
+	> div {
+		opacity: 0;
+		transition: opacity 1s;
+	}
+}
+
+@mixin animation-left-hover {
+	> div {
+		left: initial;
+		animation: slide-animation 5900ms ease-in-out 1;
+		animation-delay: 0s;
+		animation-fill-mode: forwards;
+	}
+}
+
+@mixin animation-right-hover {
+	> div {
+		right: initial;
+		animation: slide-animation-right 5900ms ease-in-out 1;
+		animation-delay: 0s;
+		animation-fill-mode: forwards;
+	}
+}
+
+@keyframes slide-animation {
+	0%,
+	34%,
+	100% {
+		max-width: 100%;
+		padding-left: 12px;
+	}
+	50%,
+	84% {
+		max-width: var(--AnimatedIconSlideout-max-width);
+		padding: 0 40px 0 12px;
+	}
+}
+
+@keyframes slide-animation-right {
+	0%,
+	34%,
+	100% {
+		max-width: 100%;
+		padding-right: 12px;
+	}
+	50%,
+	84% {
+		max-width: var(--AnimatedIconSlideout-max-width);
+		padding: 0 calc(var(--spacing-sm) / 2) 0 var(--spacing-2md);
+	}
+}
+
+div.animation {
+	--AnimatedIconSlideout-button-height-local: var(--AnimatedIconSlideout-button-height, 40px);
+	--AnimatedIconSlideout-max-width-local: var(--AnimatedIconSlideout-max-width, 320px);
+	--AnimatedIconSlideout-background-color-local: var(--AnimatedIconSlideout-background-color, #1d1d1d);
+	--AnimatedIconSlideout-text-color-local: var(--AnimatedIconSlideout-text-color, #ffffff);
+	--AnimatedIconSlideout-border-radius: calc(var(--AnimatedIconSlideout-button-height-local) / 2);
+
+	position: relative;
+	display: inline-flex;
+
+	> div {
+		position: absolute;
+		z-index: 1;
+		min-width: 100%;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		@include subtext(var(--font-bold));
+		line-height: var(--AnimatedIconSlideout-button-height-local);
+		border-radius: var(--AnimatedIconSlideout-border-radius);
+		overflow: hidden;
+		white-space: nowrap;
+		background-color: var(--AnimatedIconSlideout-background-color-local);
+
+		> svg {
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: -1;
+			border-radius: var(--AnimatedIconSlideout-border-radius);
+		}
+		> span {
+			color: var(--AnimatedIconSlideout-text-color-local);
+		}
+	}
+	> svg {
+		position: relative;
+		z-index: 1;
+	}
+}
+
+div.left-looping {
+	> div {
+		animation: slide-animation 5900ms ease-in-out infinite;
+	}
+}
+
+div.left-hover {
+	> div {
+		animation: slide-animation 5900ms ease-in-out 1;
+	}
+}
+
+div.right-lg-down {
+	@include bp-desktop-down {
+		@include animation-right-start;
+	}
+}
+
+div.right-lg-down-hover {
+	@include bp-desktop-down {
+		@include animation-right-hover;
+	}
+}
+
+div.right-lg-up {
+	@include bp-large-desktop-up {
+		@include animation-right-start;
+	}
+}
+
+div.right-lg-up-hover {
+	@include bp-large-desktop-up {
+		@include animation-right-hover;
+	}
+}
+
+div.right-lg-up-stop {
+	@include bp-large-desktop-up {
+		@include animation-fade-out;
+	}
+}
+
+div.left-lg-up {
+	@include bp-large-desktop-up {
+		@include animation-left-start;
+	}
+}
+
+div.left-lg-up-hover {
+	@include bp-large-desktop-up {
+		@include animation-left-hover;
+	}
+}
+
+div.left-lg-down {
+	@include bp-desktop-down {
+		@include animation-left-start;
+	}
+}
+
+div.left-lg-down-hover {
+	@include bp-desktop-down {
+		@include animation-left-hover;
+	}
+}
+
+div.left-lg-down-stop {
+	@include bp-desktop-down {
+		@include animation-fade-out;
+	}
+}

@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./LoadingDots.js",
+  "main": "./LoadingDots.js",
+  "types": "../types/LoadingDots.d.ts"
+}

@@ -1,0 +1,12 @@
+.progress-bar {
+	width: 100%;
+	margin: 0 auto var(--spacing-sm);
+
+	svg {
+		border-radius: 4px;
+
+		> rect {
+			transition: width 0.75s ease-in-out;
+		}
+	}
+}

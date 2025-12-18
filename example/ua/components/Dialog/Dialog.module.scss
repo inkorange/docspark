@@ -1,0 +1,285 @@
+@use '../styles/breakpoints' as breakpoints;
+@use '../styles/typography' as *;
+
+/**
+Dialog Tokens Referenced:
+--Dialog-default-width
+--Dialog-background-color
+--Dialog-text-color
+--Dialog-actions-border-color
+
+Button Tokens Referenced:
+--Button-width
+--Button-font-size
+
+Global Tokens Referenced:
+--color-screen-background
+
+App Environment Variables:
+--safe-margin-bottom
+--header-height
+*/
+
+.dialog {
+	--Dialog-touch-target-padding-local: var(--Dialog-touch-target-padding, 44px);
+	--Dialog-default-width-local: var(--Dialog-default-width, 488px);
+	--Dialog-background-color-local: var(--Dialog-background-color, #ffffff);
+	--Dialog-text-color-local: var(--Dialog-text-color, #1d1d1d);
+	--Dialog-actions-border-color-local: var(--Dialog-actions-border-color, #d0d0d0);
+
+	--zindex-base: 1000;
+
+	box-sizing: border-box;
+	padding: 0;
+	border: 0;
+	outline: none;
+
+	&[open] {
+		display: block;
+	}
+
+	&--ua-dialog {
+		width: 100%;
+		border-radius: 12px 12px 0 0;
+		bottom: 0;
+		margin-bottom: var(--safe-margin-bottom, 0px);
+		border: none;
+		max-width: var(--Dialog-default-width-local);
+		line-height: calc(24 / 16);
+		text-align: left;
+		color: var(--Dialog-text-color-local);
+		padding: 0;
+		overflow: hidden;
+
+		&::backdrop {
+			background-color: var(--color-screen-background, rgba(0 0 0 / 0.5));
+		}
+		+ .backdrop {
+			background-color: var(--color-screen-background, rgba(0 0 0 / 0.5));
+		}
+
+		&--content {
+			height: fit-content;
+			background-color: var(--Dialog-background-color-local);
+
+			.close-button {
+				position: absolute;
+				top: 0;
+				right: 0;
+				border: none;
+				cursor: pointer;
+				background-color: transparent;
+				padding: calc(var(--spacing-lg) / 2) var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
+				z-index: calc(var(--zindex-base) + 1);
+				outline: none;
+				svg {
+					color: var(--Dialog-text-color);
+				}
+			}
+			.content-wrapper {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				&--default {
+					padding: var(--spacing-2md) var(--spacing-xs) var(--spacing-sm) var(--spacing-xs);
+				}
+				> form > h3,
+				> h3 {
+					padding: calc(var(--spacing-xs) * 1.25) var(--spacing-lg) 0 var(--spacing-sm);
+					margin: 0;
+					@include h5(var(--font-bold));
+					> svg.dialog-title--icon {
+						display: block;
+						margin: 0 auto var(--spacing-xs) auto;
+					}
+					&.dialog-title--with-icon {
+						text-align: center;
+						padding-right: var(--spacing-sm);
+						+ .content-wrapper-content {
+							text-align: center;
+						}
+					}
+
+					&.dialog-title--with-navigation {
+						display: flex;
+						gap: var(--spacing-xs);
+						align-items: center;
+						margin: 0 -4px;
+						> span {
+							flex-grow: 1;
+						}
+						.dialog-title--prev-action,
+						.dialog-title--next-action {
+							cursor: pointer;
+						}
+
+						.dialog-title--prev-action {
+							transform: rotate(180deg);
+						}
+					}
+				}
+
+				/** When we do not have a title slot, we need to retain the spacing. */
+				&:not(:has(h3)) {
+					.content-wrapper-content {
+						margin-top: var(--spacing-sm);
+					}
+				}
+
+				&-content {
+					overflow: auto;
+					height: 100%;
+					padding: var(--spacing-sm);
+					max-height: calc(
+						100dvh -
+							calc(
+								var(--header-height, var(--spacing-lg)) + var(--dialog-header-height, 0px) +
+									var(--dialog-actions-height, 0px) + var(--safe-margin-bottom, 0px) +
+									var(--Dialog-touch-target-padding-local)
+							)
+					);
+
+					> p {
+						margin-bottom: 0;
+						&:first-of-type {
+							margin-top: 0;
+						}
+					}
+				}
+				&-actions {
+					padding: var(--spacing-sm);
+					text-align: center;
+					border-top: solid 1px var(--Dialog-actions-border-color-local);
+					box-shadow: 0px -2px 4px 0px rgba(29, 29, 29, 0.1);
+					display: flex;
+					flex-direction: row;
+					gap: var(--spacing-xs);
+					> button,
+					> a {
+						width: 100%;
+					}
+					/** A Design rule has been implemented where button sizes will be 14px, but when a dialog has 2 side
+						by side buttons in the Actions slot, they will be 12px font size only on mobile views.
+					 */
+					&:has(> :nth-child(2)) {
+						> button,
+						> a {
+							font-size: var(--font-size-subtext);
+						}
+					}
+					&:empty {
+						display: none;
+					}
+				}
+
+				/** When there is a title and no content, just actions, we need the spacing */
+				> form > h3 + .content-wrapper-actions,
+				> h3 + .content-wrapper-actions {
+					margin-top: var(--spacing-md);
+				}
+			}
+		}
+
+		/** tablet sizing, always leave padding on sides on collapsed views */
+		@include breakpoints.bp-tablet-only {
+			max-width: calc(min(calc(100vw - var(--spacing-3md)), var(--Dialog-default-width-local)));
+		}
+
+		@include breakpoints.bp-tablet-up {
+			border-radius: 0;
+			margin-bottom: auto;
+
+			&--content {
+				padding: var(--spacing-2md) 0;
+
+				.content-wrapper {
+					> form > .h3,
+					> h3 {
+						padding: 0 var(--spacing-2md) var(--spacing-2xs) var(--spacing-2md);
+						&.dialog-title--empty {
+							padding-top: 0;
+						}
+						&.dialog-title--with-icon {
+							padding-right: var(--spacing-2md);
+						}
+					}
+					&-content {
+						padding: 0 var(--spacing-2md);
+					}
+					> form > h3 + .content-wrapper-content,
+					> h3 + .content-wrapper-content {
+						/** padding on the content area + default spacing on top/bottom default + root dialog padding */
+						--dialog-paddings: calc(var(--spacing-3md) + var(--spacing-2md) + var(--spacing-xl));
+						padding: var(--spacing-xs) var(--spacing-2md) 0 var(--spacing-2md);
+						max-height: calc(
+							100dvh -
+								calc(
+									var(--dialog-header-height, 0px) + var(--dialog-actions-height, 0px) + var(--safe-margin-bottom, 0px) +
+										var(--dialog-paddings, 0px)
+								)
+						);
+						&:last-child {
+							padding-bottom: 0;
+						}
+					}
+					> form > h3 + .content-wrapper-actions,
+					> h3 + .content-wrapper-actions {
+						margin-top: var(--spacing-sm);
+					}
+
+					&-actions {
+						padding: var(--spacing-sm) var(--spacing-2md) 0 var(--spacing-2md);
+						border: none;
+						box-shadow: none;
+						flex-direction: row;
+						justify-content: center;
+						align-items: center;
+						> button,
+						> a {
+							/** the following will revert the button to default width, not 100% */
+							max-width: var(--Button-width, 212px);
+							flex-basis: 100%;
+							&:only-child {
+								min-width: var(--Button-width, 212px);
+								flex-basis: auto;
+							}
+						}
+						&:has(> :nth-child(2)) {
+							> button,
+							> a {
+								font-size: var(--Button-font-size, calc(14rem / 16));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	&--ua-dialog-noborder {
+		> div:only-child {
+			padding: 0;
+			.content-wrapper {
+				&-content {
+					padding: 0;
+					margin: 0;
+				}
+			}
+		}
+	}
+
+	&--ua-dialog-fullscreen {
+		max-width: 100vw;
+		max-height: 100vh;
+		margin: 0;
+		border-radius: 0;
+		> div:only-child {
+			height: calc(100vh - var(--safe-margin-bottom, 0px));
+			.content-wrapper {
+				&-content {
+					max-height: 100%;
+				}
+			}
+		}
+	}
+}

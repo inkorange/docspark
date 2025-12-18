@@ -50,7 +50,9 @@
     "build:cli": "tsc --project tsconfig.cli.json",
     "build:template": "node ./scripts/build-template.js",
     "prepublishOnly": "npm run build:cli && npm run build:template",
-    "test": "react-scripts test",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "docspark": "node ./bin/docspark.js",
     "docs:dev": "npm run docs:build && npm run build:website && npm run copy-docs-assets && node ./bin/docspark.js dev",
@@ -66,15 +68,6 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
-  },
-  "jest": {
-    "coverageReporters": [
-      "json",
-      "json-summary",
-      "lcov",
-      "text",
-      "clover"
     ]
   },
   "browserslist": {

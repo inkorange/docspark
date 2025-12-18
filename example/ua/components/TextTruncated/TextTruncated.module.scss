@@ -1,0 +1,16 @@
+.text-truncated {
+	display: flex;
+}
+
+.left {
+	flex: 0 1 auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: pre;
+}
+
+.right {
+	flex: 1 0 auto;
+	overflow: hidden;
+	white-space: pre;
+}

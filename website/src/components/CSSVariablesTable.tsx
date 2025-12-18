@@ -13,21 +13,37 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
 
   // Apply CSS variables to the document root when customValues change
   useEffect(() => {
-    if (!editMode) return;
+    if (!editMode) {
+      // When not in edit mode, clean up all custom variables
+      variables.forEach((variable) => {
+        document.documentElement.style.removeProperty(variable.name);
+      });
+      return;
+    }
 
+    // Apply all custom values
     Object.entries(customValues).forEach(([varName, value]) => {
       if (value) {
         document.documentElement.style.setProperty(varName, value);
+      } else {
+        // If value is empty, remove the property to use default
+        document.documentElement.style.removeProperty(varName);
       }
     });
 
-    // Cleanup function to reset variables when component unmounts
-    return () => {
-      if (!editMode) {
-        variables.forEach((variable) => {
-          document.documentElement.style.removeProperty(variable.name);
-        });
+    // Remove properties that are no longer in customValues
+    variables.forEach((variable) => {
+      if (!(variable.name in customValues)) {
+        document.documentElement.style.removeProperty(variable.name);
       }
+    });
+
+    // Cleanup function when component unmounts or editMode changes
+    return () => {
+      // Clean up all variables when exiting edit mode or unmounting
+      variables.forEach((variable) => {
+        document.documentElement.style.removeProperty(variable.name);
+      });
     };
   }, [customValues, editMode, variables]);
 

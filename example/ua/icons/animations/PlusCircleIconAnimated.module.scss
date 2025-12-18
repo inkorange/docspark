@@ -1,0 +1,29 @@
+@keyframes pulse-animation {
+	0%,
+	80% {
+		transform: scale(0.5);
+	}
+
+	45% {
+		transform: scale(1.35);
+	}
+}
+
+.animation {
+	overflow: visible;
+	--pulse-circle-color-local: var(--pulse-circle-color, var(--color-white));
+
+	circle {
+		fill-opacity: 0.2;
+		transform-origin: center;
+		animation: pulse-animation 2.7s ease-in-out 100ms infinite;
+
+		&:first-of-type {
+			fill: var(--pulse-circle-color-local);
+		}
+
+		@media (prefers-reduced-motion) {
+			animation: pulse-animation 5s ease-in-out 100ms infinite;
+		}
+	}
+}

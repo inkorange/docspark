@@ -1,0 +1,27 @@
+/**
+QuoteBlock Tokens Referenced:
+--QuoteBlock-background-color
+--QuoteBlock-text-color
+--QuoteBlock-border-color
+*/
+
+.quote-block {
+	--QuoteBlock-background-color-local: var(--QuoteBlock-background-color, #f7f7f7);
+	--QuoteBlock-text-color-local: var(--QuoteBlock-text-color, #1d1d1d);
+	--QuoteBlock-border-color-local: var(--QuoteBlock-border-color, #1d1d1d);
+
+	border-left: 3px solid var(--QuoteBlock-border-color-local);
+	display: flex;
+	margin: 0 var(--spacing-xs);
+	padding: var(--spacing-xs) var(--spacing-sm);
+	align-items: flex-start;
+	gap: var(--spacing-xs);
+	background-color: var(--QuoteBlock-background-color-local);
+	color: var(--QuoteBlock-text-color-local);
+	svg {
+		flex-shrink: 0;
+	}
+	> div {
+		align-self: center;
+	}
+}

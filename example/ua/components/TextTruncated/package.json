@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./TextTruncated.js",
+  "main": "./TextTruncated.js",
+  "types": "../types/TextTruncated.d.ts"
+}

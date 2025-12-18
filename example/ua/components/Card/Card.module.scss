@@ -1,0 +1,100 @@
+@use '../styles/breakpoints.scss' as breakpoints;
+@use '../styles/typography' as *;
+
+/**
+Card Design Tokens Referenced:
+
+--Card-background-color
+--Card-default-border-color
+--Card-default-highlight-color
+--Card-error-border-color
+*/
+
+.card:where([data-card]) {
+	--Card-background-color-local: var(--Card-background-color, #ffffff);
+	--Card-default-border-color-local: var(--Card-default-border-color, #1d1d1d);
+	--Card-default-highlight-color-local: var(--Card-default-highlight-color, #d0d0d0);
+	--Card-error-border-color-local: var(--Card-error-border-color, #dc0019);
+
+	position: relative;
+	box-sizing: border-box;
+	padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-2md);
+	--border-color: var(--Card-default-border-color-local);
+	border-radius: 4px;
+	font-size: var(--font-size-body);
+	font-weight: normal;
+	background-color: var(--Card-background-color);
+	border-bottom: 1px solid var(--Card-default-highlight-color-local);
+	display: flex;
+	justify-content: space-between;
+
+	@include breakpoints.bp-large-desktop-up {
+		box-shadow: 0 0 0 1px var(--Card-default-highlight-color-local) inset;
+	}
+
+	&.card--error {
+		--border-color: var(--Card-error-border-color-local);
+		box-shadow: 0 0 0 1px var(--Card-error-border-color-local) inset;
+	}
+
+	&.card--onclick {
+		cursor: pointer;
+	}
+
+	> * {
+		min-width: var(--spacing-sm);
+		line-height: calc(24 / 14);
+	}
+
+	&[data-selected='true'] {
+		box-shadow: 0 0 0 2px var(--border-color) inset;
+		svg {
+			margin-left: var(--spacing-xs);
+
+			path {
+				stroke-width: 1.5;
+			}
+		}
+	}
+
+	> * {
+		> :not(.actions) {
+			&:first-child {
+				font-weight: var(--font-bold);
+			}
+		}
+
+		> p {
+			margin: 0;
+		}
+	}
+
+	> .actions[role='group'] {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2md);
+		margin-top: var(--spacing-xs);
+
+		> button[data-variant='text'] {
+			color: inherit;
+			@include body(var(--font-semibold));
+			@include anchor-underline;
+
+			@include breakpoints.bp-desktop-up {
+				text-decoration: none;
+			}
+
+			@media (hover: hover) {
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}
+
+.card-error {
+	@include subtext;
+	color: var(--Card-error-border-color-local);
+	margin: var(--spacing-2xs) 0;
+}

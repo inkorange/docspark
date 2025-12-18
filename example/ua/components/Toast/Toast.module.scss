@@ -1,0 +1,56 @@
+@use '../styles/breakpoints' as breakpoints;
+@use '../styles/typography' as *;
+
+/**
+Toast Design Tokens Referenced:
+
+--Toast-background-color
+--Toast-text-color
+--Toast-min-width
+--Toast-timer-line-color
+*/
+
+.toast {
+	--Toast-background-color-local: var(--Toast-background-color, #1d1d1d);
+	--Toast-text-color-local: var(--Toast-text-color, #ffffff);
+	--Toast-min-width-local: var(--Toast-min-width, 344px);
+	--Toast-min-height-local: var(--Toast-min-height, 56px);
+	--Toast-timer-line-color-local: var(--Toast-timer-line-color, #dc0019);
+	--Toast-timer-progress: 0%;
+
+	background-color: var(--Toast-background-color-local);
+	color: var(--Toast-text-color-local);
+	border-radius: var(--spacing-3xs);
+	box-shadow: 0 0 0 0.75px var(--Toast-text-color-local);
+	padding: 0 var(--spacing-xs);
+	gap: var(--spacing-xs);
+	height: var(--Toast-min-height-local);
+	width: 100%;
+	position: relative;
+	@include body();
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-shrink: 0;
+
+	&::before {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: var(--spacing-3xs);
+		background: linear-gradient(
+			to right,
+			var(--Toast-timer-line-color-local) var(--Toast-timer-progress),
+			transparent var(--Toast-timer-progress)
+		);
+		border-radius: 0 0 var(--spacing-4xs) var(--spacing-4xs);
+	}
+
+	@include breakpoints.bp-tablet-up {
+		width: auto;
+		min-width: var(--Toast-min-width-local);
+	}
+}

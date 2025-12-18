@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./PasswordField.js",
+  "main": "./PasswordField.js",
+  "types": "../types/PasswordField.d.ts"
+}

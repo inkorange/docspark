@@ -1,0 +1,50 @@
+/**
+PillButton Tokens Referenced:
+--PillButton-default-background-color
+--PillButton-default-text-color
+--PillButton-selected-background-color
+--PillButton-selected-text-color
+
+Button Tokens Referenced:
+--Button-height
+*/
+
+.pill_button {
+	--PillButton-default-background-color-local: var(--PillButton-default-background-color, #f0f0f0);
+	--PillButton-default-text-color-local: var(--PillButton-default-text-color, #1d1d1d);
+	--PillButton-selected-background-color-local: var(--PillButton-selected-background-color, #1d1d1d);
+	--PillButton-selected-text-color-local: var(--PillButton-selected-text-color, #ffffff);
+
+	align-items: center;
+	padding: 0 var(--spacing-sm);
+	border-radius: 100vmax;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color 0.3s, color 0.3s;
+	border: none !important;
+	line-height: var(--Button-height);
+	width: fit-content;
+	background: var(--PillButton-default-background-color-local);
+	display: inline-flex;
+	gap: var(--spacing-2xs);
+	color: var(--PillButton-default-text-color-local);
+	> span {
+		font-weight: var(--font-regular);
+		text-decoration: none;
+		&:empty {
+			display: none;
+		}
+	}
+
+	svg:has(+ span:empty) {
+		min-height: var(--Button-height);
+	}
+
+	&--selected {
+		background: var(--PillButton-selected-background-color-local);
+		color: var(--PillButton-selected-text-color-local);
+		> span {
+			font-weight: var(--font-semibold);
+		}
+	}
+}

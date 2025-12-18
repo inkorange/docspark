@@ -5,7 +5,8 @@
 
   "source": {
     "include": [
-      "example/components/**/*.{tsx,jsx}"
+      "example/ua/components/**/*.{tsx,jsx,ts}",
+      "example/ua/icons/**/*.{tsx,jsx,ts}"
     ],
     "exclude": [
       "**/*.test.{tsx,jsx}",
@@ -40,13 +41,13 @@
     "defaultValues": {
       "string": "Example text",
       "number": 42,
-      "children": "Button Text"
+      "children": "Example"
     }
   },
 
   "theme": {
     "tokens": [{
-      "default": { "source": "src/themes/tokens.css", "background": "#FFFFFF" }
+      "default": { "source": "example/themes/tokens.css", "background": "#FFFFFF" }
     }],
     "primaryColor": "#0066cc"
   },
