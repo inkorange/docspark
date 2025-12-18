@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./CustomLoader.js",
-  "main": "./CustomLoader.js",
-  "types": "../types/CustomLoader.d.ts"
-}

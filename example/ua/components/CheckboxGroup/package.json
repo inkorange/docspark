@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./CheckboxGroup.js",
-  "main": "./CheckboxGroup.js",
-  "types": "../types/CheckboxGroup.d.ts"
-}

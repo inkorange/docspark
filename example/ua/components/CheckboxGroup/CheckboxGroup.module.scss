@@ -1,7 +1,0 @@
-@use '../styles/typography' as *;
-
-.checkboxGroup {
-	> legend {
-		@include h6(--font-semibold);
-	}
-}

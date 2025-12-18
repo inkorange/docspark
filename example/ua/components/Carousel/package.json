@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./index.js",
-  "main": "./index.js",
-  "types": "../types/Carousel.d.ts"
-}

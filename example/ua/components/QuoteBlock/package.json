@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./QuoteBlock.js",
-  "main": "./QuoteBlock.js",
-  "types": "../types/QuoteBlock.d.ts"
-}

@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./ScaleDiagram.js",
-  "main": "./ScaleDiagram.js",
-  "types": "../types/ScaleDiagram.d.ts"
-}

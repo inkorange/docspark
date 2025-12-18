@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./InputField.js",
-  "main": "./InputField.js",
-  "types": "../types/InputField.d.ts"
-}

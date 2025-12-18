@@ -3,23 +3,23 @@ module.exports = {
   testEnvironment: 'jsdom',
 
   // Roots to search for tests
-  roots: ['<rootDir>/src', '<rootDir>/example'],
+  roots: ['<rootDir>/src', '<rootDir>/examples'],
 
-  // Override testMatch to include example directory
+  // Override testMatch to include examples directory
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
-    '<rootDir>/example/**/__tests__/**/*.{js,jsx,ts,tsx}',
-    '<rootDir>/example/**/*.{spec,test}.{js,jsx,ts,tsx}'
+    '<rootDir>/examples/**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/examples/**/*.{spec,test}.{js,jsx,ts,tsx}'
   ],
 
-  // Collect coverage from example directory
+  // Collect coverage from examples directory
   collectCoverageFrom: [
-    'example/**/*.{ts,tsx}',
-    '!example/**/*.d.ts',
-    '!example/**/index.ts',
-    '!example/**/*.test.{ts,tsx}',
-    '!example/**/*.spec.{ts,tsx}'
+    'examples/**/*.{ts,tsx}',
+    '!examples/**/*.d.ts',
+    '!examples/**/index.ts',
+    '!examples/**/*.test.{ts,tsx}',
+    '!examples/**/*.spec.{ts,tsx}'
   ],
 
   // Coverage reporters including json-summary

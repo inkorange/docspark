@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./CircularProgress.js",
-  "main": "./CircularProgress.js",
-  "types": "../types/CircularProgress.d.ts"
-}

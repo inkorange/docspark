@@ -1,6 +1,0 @@
-{
-  "sideEffects": false,
-  "module": "./Popup.js",
-  "main": "./Popup.js",
-  "types": "../types/Popup.d.ts"
-}

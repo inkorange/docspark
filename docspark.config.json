@@ -5,12 +5,10 @@
 
   "source": {
     "include": [
-      "example/ua/components/**/*.{tsx,jsx,ts}",
-      "example/ua/icons/**/*.{tsx,jsx,ts}"
+      "examples/sample/**/*.{tsx,jsx,ts}"
     ],
     "exclude": [
-      "**/*.test.{tsx,jsx}",
-      "**/*.stories.{tsx,jsx}"
+      "**/*.test.{tsx,jsx}"
     ],
     "styleFiles": [".css", ".scss", ".module.css", ".module.scss"]
   },
@@ -47,7 +45,7 @@
 
   "theme": {
     "tokens": [{
-      "default": { "source": "example/themes/tokens.css", "background": "#FFFFFF" }
+      "default": { "source": "examples/themes/tokens.css", "background": "#FFFFFF" }
     }],
     "primaryColor": "#0066cc"
   },

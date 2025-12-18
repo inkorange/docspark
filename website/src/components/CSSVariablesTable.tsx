@@ -57,7 +57,7 @@ const CSSVariablesTable: React.FC<CSSVariablesTableProps> = ({ variables }) => {
         document.documentElement.style.removeProperty(variable.name);
       });
     };
-  }, [customValues, editMode, variables, incrementVersion]);
+  }, [customValues, editMode, variables, incrementVersion, setCustomCSSVariables]);
 
   if (variables.length === 0) {
     return null;
