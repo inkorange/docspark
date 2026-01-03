@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- fb5af39: Initial Production Release
+
 ## 0.1.7
 
 ### Patch Changes
