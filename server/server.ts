@@ -16,23 +16,19 @@ export async function startDevServer(config: DocSparkConfig, port: number): Prom
   // Serve metadata as JSON
   app.use('/api/metadata', express.static(path.join(outputDir, 'metadata')));
 
-  // Serve static files from the website build
-  // In development: website/build directory in project root
-  // This is only used for dev server, not production builds
-  const websitePath = path.join(process.cwd(), 'website/build');
-  if (require('fs').existsSync(websitePath)) {
-    app.use(express.static(websitePath));
-  }
+  // Serve static files from the output directory
+  app.use(express.static(outputDir));
 
-  // SPA fallback
+  // SPA fallback - serve index.html for all routes
   app.get('*', (req, res) => {
-    const indexPath = path.join(websitePath, 'index.html');
+    const indexPath = path.join(outputDir, 'index.html');
     if (require('fs').existsSync(indexPath)) {
       res.sendFile(indexPath);
     } else {
-      res.json({
-        message: 'Documentor Dev Server',
-        api: '/api/metadata',
+      res.status(500).json({
+        error: 'Documentation not built',
+        message: 'The documentation website was not found. This usually means the build failed.',
+        outputDir,
       });
     }
   });
