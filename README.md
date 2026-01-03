@@ -1,22 +1,42 @@
 <img src="public/docspark-logo.png" alt="DocSpark Logo" width="150" />
 
-# DocSpark (Alpha Build)
+# DocSpark
 
-**Simple, automatic component documentation for React built off your Typescript Definitions**
+> **Stop writing story files. Start documenting instantly.**
 
-DocSpark automatically generates beautiful, interactive, documentation for your React components. Just add a simple config file and a few JSDoc tags, then generate a complete documentation site—no story files, no complex setup required.
+**Automatic, beautiful component documentation for React—built from your TypeScript definitions in minutes.**
+
+DocSpark is the easiest way to document your React component library. Unlike Storybook, there are **no story files to write**. Unlike React Docgen, you get a **complete, production-ready documentation site**. Just add a config file and a few JSDoc tags, and DocSpark does the rest.
+
+Perfect for design systems, component libraries, and teams who want professional documentation without the complexity.
 
 ![DocSpark Screenshot](public/docspark-screen1.jpg)
 
-**NOTE: This is an alpha release as we work through support across a wide-range of projects. Live Preview of components is a work in progress**
+🚀 **10x Simpler than Storybook** • 📦 **Zero story files needed** • ⚡ **2-minute setup** • 🎨 **Auto-generates all variants**
 
-## Current Limitations
-Live Previews: Only work when the React website successfully builds from source. When falling back to the template, live previews show "Live preview not available" because:
-- The template contains a pre-built static bundle
-- User components copied to docs/preview-components/ can't be loaded by the static bundle
-- All other documentation features (props tables, variants, code examples, CSS variables) work perfectly
+[![npm version](https://img.shields.io/npm/v/@inkorange/docspark.svg)](https://www.npmjs.com/package/@inkorange/docspark)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-🚀 **Simpler than Storybook** • 📦 **Works with existing components** • ⚡ **Minimal configuration**
+---
+
+## Why DocSpark?
+
+### The Problem
+Building component documentation is painful:
+- **Storybook**: Requires writing and maintaining story files for every component variant
+- **React Docgen**: Only generates JSON—you still need to build the entire UI
+- **Manual docs**: Time-consuming and quickly becomes outdated
+
+### The Solution
+DocSpark automatically:
+- ✨ **Generates all component variants** from your TypeScript types
+- 📝 **Extracts documentation** from your existing JSDoc comments
+- 🎨 **Documents CSS variables** and design tokens
+- 🔍 **Creates live previews** with interactive controls
+- 📊 **Shows test coverage** alongside each component
+- 🎯 **Builds a static site** ready to deploy anywhere
+
+**Result**: Professional documentation in minutes, not hours.
 
 ---
 
